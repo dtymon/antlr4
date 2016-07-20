@@ -37,13 +37,20 @@
 // not cause bloating of the {@link DFA} created for the lexer.</p>
 
 var LexerIndexedCustomAction = require('./LexerAction').LexerIndexedCustomAction;
+var MurmurHash = require('../MurmurHash').MurmurHash;
 
 function LexerActionExecutor(lexerActions) {
 	this.lexerActions = lexerActions === null ? [] : lexerActions;
 	// Caches the result of {@link //hashCode} since the hash code is an element
 	// of the performance-critical {@link LexerATNConfig//hashCode} operation.
-	this._hashString = lexerActions.toString(); // "".join([str(la) for la in
-	// lexerActions]))
+
+	var numActions = this.lexerActions.length;
+	var hash = MurmurHash.initialize();
+	for (var idx = 0; idx < numActions; ++idx)
+	{
+		hash = MurmurHash.updateObject(hash, this.lexerActions[idx]);
+	}
+	this._hashCode = MurmurHash.finish(hash, numActions);
 	return this;
 }
 
@@ -157,8 +164,8 @@ LexerActionExecutor.prototype.execute = function(lexer, input, startIndex) {
 	}
 };
 
-LexerActionExecutor.prototype.hashString = function() {
-	return this._hashString;
+LexerActionExecutor.prototype.hashCode = function() {
+	return this._hashCode;
 };
 
 LexerActionExecutor.prototype.equals = function(other) {
@@ -166,7 +173,7 @@ LexerActionExecutor.prototype.equals = function(other) {
 		return true;
 	} else if (!(other instanceof LexerActionExecutor)) {
 		return false;
-	} else if (this._hashString != other._hashString) {
+	} else if (this._hashCode != other._hashCode) {
 		return false;
 	} else if (this.lexerActions.length != other.lexerActions.length) {
 		return false;
