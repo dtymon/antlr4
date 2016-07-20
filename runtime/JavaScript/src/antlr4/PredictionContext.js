@@ -100,6 +100,7 @@ function calculateEmptyHashString() {
 
 function PredictionContextCache() {
 	this.cache = {};
+	this.size = 0;
 	return this;
 }
 
@@ -111,21 +112,22 @@ PredictionContextCache.prototype.add = function(ctx) {
 	if (ctx === PredictionContext.EMPTY) {
 		return PredictionContext.EMPTY;
 	}
-	var existing = this.cache[ctx] || null;
-	if (existing !== null) {
+	var existing = this.cache[ctx.cachedHashString];
+	if (existing != null) {
 		return existing;
 	}
-	this.cache[ctx] = ctx;
+	this.cache[ctx.cachedHashString] = ctx;
+	++this.size;
 	return ctx;
 };
 
 PredictionContextCache.prototype.get = function(ctx) {
-	return this.cache[ctx] || null;
+	return this.cache[ctx.cachedHashString] || null;
 };
 
 Object.defineProperty(PredictionContextCache.prototype, "length", {
 	get : function() {
-		return this.cache.length;
+		return this.size;
 	}
 });
 
