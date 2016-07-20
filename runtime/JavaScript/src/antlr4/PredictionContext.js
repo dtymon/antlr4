@@ -31,8 +31,10 @@
 
 var RuleContext = require('./RuleContext').RuleContext;
 
+var globalNodeCount = 0;
 function PredictionContext(cachedHashString) {
 	this.cachedHashString = cachedHashString;
+	this.id = globalNodeCount++;
 }
 
 // Represents {@code $} in local context prediction, which means wildcard.
@@ -45,9 +47,6 @@ PredictionContext.EMPTY = null;
 // {@code $} = {@link //EMPTY_RETURN_STATE}.
 // /
 PredictionContext.EMPTY_RETURN_STATE = 0x7FFFFFFF;
-
-PredictionContext.globalNodeCount = 1;
-PredictionContext.id = PredictionContext.globalNodeCount;
 
 // Stores the computed hash code of this {@link PredictionContext}. The hash
 // code is computed in parts to match the following reference algorithm.
